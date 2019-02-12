@@ -20,7 +20,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText etName ;
+    EditText etName;
 
     WebView myWebView;
 
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         etName = findViewById(R.id.editText);
 
-         myWebView = (WebView) findViewById(R.id.webview);
+        myWebView = (WebView) findViewById(R.id.webview);
 
 
         // initiate progress bar and start button
@@ -49,53 +49,29 @@ public class MainActivity extends AppCompatActivity {
                 simpleProgressBar.setVisibility(View.VISIBLE);
 
 
-                myWebView.loadUrl("https://see-the-light.herokuapp.com/news/get?link="+ etName.getText().toString());
+                myWebView.loadUrl("https://see-the-light.herokuapp.com/news/get?link=" + etName.getText().toString());
+// this will start the clip monitoring service
+                LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        String ML_VALUE = intent.getStringExtra(ClipboardMonitorService.ML_RESPONSE);
+                        if ( !=null){
+                            Toast.makeText(getApplicationContext(), ML_VALUE, Toast.LENGTH_LONG).show();
+                            //LEVEL
+                            Notification notification = new NotificationCompat.Builder(mContext, CHANNEL_ID)
+                                    .setSmallIcon(R.drawable.new_mail)
+                                    .setContentTitle("STL FEEDBACK")
+                                    .setContentText(ML_VALUE)
+                                    .setLargeIcon(emailObject.getSenderAvatar())
+                                    .setStyle(new NotificationCompat.BigTextStyle()
+                                            .bigText(emailObject.getSubjectAndSnippet()))
+                                    .build();
+                        }
+                    }
+                }, new IntentFilter(userlocation_service.CLIPBORD_MONITOR_SERVICE_ACTION));
+
+            }
+        });
 
 
-
-                /**
-
-                URL url = null;
-                try {
-                    url = new URL("https://see-the-light.herokuapp.com/see-the-light/news");
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-                HttpURLConnection client = null;
-                try {
-                    client = (HttpURLConnection) url.openConnection();
-                    client.setRequestMethod("POST");
-
-                    client.setRequestProperty("link","https://www.wikihow.com/Execute-HTTP-POST-Requests-in-Android");
-                    client.setDoOutput(true);
-
-                 HttpClient client = new DefaultHttpClient();
-
-                 HttpGet request = new HttpGet("https://see-the-light.herokuapp.com/see-the-light/news");
-                 ResponseHandler<String> handler = new BasicResponseHandler();
-                 String response = "";
-                 try {
-                 response = client.execute(request, handler);
-                 } catch (IOException e) {
-                 e.printStackTrace();
-                 }
-
-
-                 }
-                catch(SocketTimeoutException error) {
-                //Handles URL access timeout.
-                }
-                catch (IOException error) {
-                    //Handles input and output errors
-                }
-                finally {
-                    if(client != null) // Make sure the connection is not null.
-                        client.disconnect();
-                }***/
-
-
-
-                }
-            });
-    }
 }

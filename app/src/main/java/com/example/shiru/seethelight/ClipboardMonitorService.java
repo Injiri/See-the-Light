@@ -53,26 +53,25 @@ public class ClipboardMonitorService extends Service {
 //                    determine if you should enable or disable the "paste" option in the current Activity. You should verify that the clipboard contains a clip and that
 //                    you can handle the type of data represented by the clip:
 
-                    if (!(mClipboardManager.hasPrimaryClip()) ) {
+                    if (!(mClipboardManager.hasPrimaryClip())) {
                         ClipData clip = mClipboardManager.getPrimaryClip();
                         ClipData.Item item = clip.getItemAt(0);
-                        String clip_text_url) = item.getText().toString();
+                        String clip_text_url) =item.getText().toString();
 
                         if (isValid(clip_text_url)) {
+                            String endpoint = "https://see-the-light.herokuapp.com/news/get?link=";
+                            publish_ml_feedback(endpoint, clip_text_url);
 
-                            publish_ml_feedback(clip_text_url);
-
-                        }else {
+                        } else {
                             Toast.makeText(getApplicationContext(), "copy a valid news url", Toast.LENGTH_LONG).show();
                         }
                     }
-
+//OK
                 }
             };
 
     /* Returns true if url is valid */
-    public static boolean isValid(String url)
-    {
+    public static boolean isValid(String url) {
         /* Try creating a valid URL */
         try {
             new URL(url).toURI();
@@ -86,19 +85,7 @@ public class ClipboardMonitorService extends Service {
         }
     }
 
-    public void publish_ml_feedback(String endpoint,String clipboad_url){
-        Toast.makeText(getApplicationContext(), "clip val: " + clipboad_url, Toast.LENGTH_LONG).show();
-
-        //request modelvalidation
-        String ml_response =ServerUtilities.query_ML_Model(endpoint,clipboad_url);
-
-        Log.d(TAG, "sending ml responce info...");
-        Intent intent = new Intent(CLIPBORD_MONITOR_SERVICE_ACTION);
-        intent.putExtra(ML_RESPONSE, ml_response);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public static String query_ML_Model (String endpoint, Map < String, String > params)
+      public static String query_ML_Model(String endpoint, Map<String, String> params)
             throws IOException {
         URL url;
         try {
@@ -158,5 +145,16 @@ public class ClipboardMonitorService extends Service {
             }
         }
     }
-}
+
+    public void publish_ml_feedback(String endpoint, String clipboad_url) {
+        Toast.makeText(getApplicationContext(), "clip val: " + clipboad_url, Toast.LENGTH_LONG).show();
+
+        //request modelvalidation
+        String ml_response = ServerUtilities.query_ML_Model(endpoint, clipboad_url);
+
+        Log.d(TAG, "sending ml responce info...");
+        Intent intent = new Intent(CLIPBORD_MONITOR_SERVICE_ACTION);
+        intent.putExtra(ML_RESPONSE, ml_response);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 }
